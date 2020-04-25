@@ -5,8 +5,23 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SpeechToTextfileWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="SpeechToTextfile" SizeToContent="WidthAndHeight">
+    <DockPanel>
+        <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5,2">
+            <Border BorderBrush="Black" BorderThickness="1">
+                <TextBlock VerticalAlignment="Center" Margin="4,0" MinWidth="50">File</TextBlock>
+            </Border>
+            <Button VerticalAlignment="Center" Margin="4,0">Select</Button>
+        </WrapPanel>
+        <WrapPanel DockPanel.Dock="Top" Margin="5,2" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" Margin="4,0">Second</TextBlock>
+            <Slider VerticalAlignment="Center" Maximum="30" Minimum="0" AutoToolTipPlacement="TopLeft" LargeChange="10" SmallChange="1" TickPlacement="Both" MinWidth="200" Width="auto" TickFrequency="5"></Slider>
+        </WrapPanel>
+        <DockPanel Margin="5,2">
+            <Border BorderThickness="1" DockPanel.Dock="Top">
+                <TextBlock MinWidth="100" Width="auto">Test</TextBlock>
+            </Border>
+            <Button DockPanel.Dock="Bottom">Recognize</Button>
+        </DockPanel>
+    </DockPanel>
 </Window>
