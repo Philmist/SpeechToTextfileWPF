@@ -9,19 +9,19 @@
     <DockPanel>
         <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5,2">
             <Border BorderBrush="Black" BorderThickness="1">
-                <TextBlock VerticalAlignment="Center" Margin="4,0" MinWidth="50">File</TextBlock>
+                <TextBlock VerticalAlignment="Center" Margin="4,0" MinWidth="150" Text="File" x:Name="FileNameText"></TextBlock>
             </Border>
-            <Button VerticalAlignment="Center" Margin="4,0">Select</Button>
+            <Button VerticalAlignment="Center" Margin="4,0" Content="Select" x:Name="FileSelectButton"></Button>
         </WrapPanel>
         <WrapPanel DockPanel.Dock="Top" Margin="5,2" Orientation="Horizontal">
-            <TextBlock VerticalAlignment="Center" Margin="4,0">Second</TextBlock>
-            <Slider VerticalAlignment="Center" Maximum="30" Minimum="0" AutoToolTipPlacement="TopLeft" LargeChange="10" SmallChange="1" TickPlacement="Both" MinWidth="200" Width="auto" TickFrequency="5"></Slider>
+            <TextBlock VerticalAlignment="Center" Margin="4,0" Text="{Binding ElementName=RefreshSecondSlider, Path=Value}" x:Name="RefreshSecondText" MinWidth="20"></TextBlock>
+            <Slider x:Name="RefreshSecondSlider" VerticalAlignment="Center" Maximum="30" Minimum="0" AutoToolTipPlacement="TopLeft" LargeChange="10" SmallChange="1" TickPlacement="Both" MinWidth="200" Width="auto" TickFrequency="5"></Slider>
         </WrapPanel>
         <DockPanel Margin="5,2">
-            <Border BorderThickness="1" DockPanel.Dock="Top">
-                <TextBlock MinWidth="100" Width="auto">Test</TextBlock>
+            <Border BorderThickness="1" BorderBrush="Black" DockPanel.Dock="Top" Margin="0,4">
+                <TextBlock MinWidth="150" Width="auto" x:Name="RecognizeText"></TextBlock>
             </Border>
-            <Button DockPanel.Dock="Bottom">Recognize</Button>
+            <Button DockPanel.Dock="Bottom" MaxWidth="100" Content="Recognize" x:Name="RecognizeButton" Click="RecognizeButton_Click"></Button>
         </DockPanel>
     </DockPanel>
 </Window>
