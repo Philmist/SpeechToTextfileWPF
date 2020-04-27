@@ -127,6 +127,7 @@ namespace SpeechToTextfileWPF
                 try
                 {
                     speechConfig = SpeechConfig.FromSubscription(AzureSubscriptionKeyTextBox.Text, AzureServiceRegionTextBox.Text);
+                    speechConfig.SpeechRecognitionLanguage = "ja-JP";
                     recognizer = new SpeechRecognizer(speechConfig, audioConfig);
                     recognizer.Recognized += UpdateRecognizedText;
                     recognizer.Canceled += RecognizeCanceled;
@@ -149,6 +150,7 @@ namespace SpeechToTextfileWPF
                 recognizer.Recognized -= UpdateRecognizedText;
                 recognizer.Canceled -= RecognizeCanceled;
                 isListening = false;
+                await changeControls(true);
             }
 
             await changeStateRecognizeButton(true);

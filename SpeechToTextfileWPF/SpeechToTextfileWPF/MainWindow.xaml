@@ -11,7 +11,7 @@
             <WrapPanel DockPanel.Dock="Top" Margin="5,2">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Margin="4,0">Subscription Key</TextBlock>
-                    <TextBox MinWidth="150" Margin="4,0" x:Name="AzureSubscriptionKeyTextBox"></TextBox>
+                    <TextBox MinWidth="200" Margin="4,0" x:Name="AzureSubscriptionKeyTextBox"></TextBox>
                 </StackPanel>
             </WrapPanel>
             <WrapPanel DockPanel.Dock="Top" Margin="5,2">
@@ -35,7 +35,7 @@
             <Border BorderThickness="1" DockPanel.Dock="Top">
                 <TextBlock MinWidth="150" Width="auto" x:Name="RecognizedTextBlock">Test</TextBlock>
             </Border>
-            <Button DockPanel.Dock="Bottom" Click="RecognizeButton_Click" x:Name="RecognizeButton">Recognize</Button>
+            <Button DockPanel.Dock="Bottom" Click="RecognizeButton_Click" x:Name="RecognizeButton" MaxWidth="200">Recognize</Button>
         </DockPanel>
     </DockPanel>
 </Window>
