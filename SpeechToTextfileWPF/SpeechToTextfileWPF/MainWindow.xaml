@@ -7,17 +7,19 @@
         mc:Ignorable="d"
         Title="SpeechToTextfile" SizeToContent="WidthAndHeight">
     <DockPanel>
-        <WrapPanel DockPanel.Dock="Top" Margin="5,2">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Margin="4,0">Subscription Key</TextBlock>
-                <TextBox MinWidth="100" Margin="4,0" x:Name="AzureSubscriptionKeyTextBox"></TextBox>
-            </StackPanel>
-        </WrapPanel>
-        <WrapPanel DockPanel.Dock="Top" Margin="5,2">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Margin="4,0">Service Region</TextBlock>
-                <TextBox MinWidth="100" Margin="4,0" x:Name="AzureServiceRegionTextBox"></TextBox>
-            </StackPanel>
+        <WrapPanel Orientation="Vertical" x:Name="AzureSubscriptionPanel" DockPanel.Dock="Top">
+            <WrapPanel DockPanel.Dock="Top" Margin="5,2">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="4,0">Subscription Key</TextBlock>
+                    <TextBox MinWidth="150" Margin="4,0" x:Name="AzureSubscriptionKeyTextBox"></TextBox>
+                </StackPanel>
+            </WrapPanel>
+            <WrapPanel DockPanel.Dock="Top" Margin="5,2">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="4,0">Service Region</TextBlock>
+                    <TextBox MinWidth="60" Margin="4,0" x:Name="AzureServiceRegionTextBox"></TextBox>
+                </StackPanel>
+            </WrapPanel>
         </WrapPanel>
         <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5,2">
             <Border BorderBrush="Black" BorderThickness="1">
@@ -31,7 +33,7 @@
         </WrapPanel>
         <DockPanel Margin="5,2">
             <Border BorderThickness="1" DockPanel.Dock="Top">
-                <TextBlock MinWidth="100" Width="auto" x:Name="RecognizeTextBlock">Test</TextBlock>
+                <TextBlock MinWidth="100" Width="auto" x:Name="RecognizedTextBlock">Test</TextBlock>
             </Border>
             <Button DockPanel.Dock="Bottom" x:Name="RecognizeButton">Recognize</Button>
         </DockPanel>
