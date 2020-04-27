@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ namespace SpeechToTextfileWPF
         private ConcurrentQueue<string> textQueue;
 
         private SpeechRecognizer recognizer = null;
+        private SpeechConfig speechConfig = null;
         private AudioConfig audioConfig = null;
 
         public MainWindow()
@@ -108,6 +110,48 @@ namespace SpeechToTextfileWPF
                 });
             });
             isListening = false;
+        }
+
+        private async void RecognizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            await changeStateRecognizeButton(false);
+
+            if (isListening == false)
+            {
+                if (audioConfig == null)
+                {
+                    audioConfig = AudioConfig.FromDefaultMicrophoneInput();
+                }
+                
+                await changeControls(false);
+                try
+                {
+                    speechConfig = SpeechConfig.FromSubscription(AzureSubscriptionKeyTextBox.Text, AzureServiceRegionTextBox.Text);
+                    recognizer = new SpeechRecognizer(speechConfig, audioConfig);
+                    recognizer.Recognized += UpdateRecognizedText;
+                    recognizer.Canceled += RecognizeCanceled;
+                    await recognizer.StartContinuousRecognitionAsync();
+                    isListening = true;
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                    await changeControls(true);
+                    await changeStateRecognizeButton(true);
+                    return;
+                }
+
+            }
+            else
+            {
+                await recognizer.StopContinuousRecognitionAsync();
+                recognizer.Recognized -= UpdateRecognizedText;
+                recognizer.Canceled -= RecognizeCanceled;
+                isListening = false;
+            }
+
+            await changeStateRecognizeButton(true);
         }
     }
 }

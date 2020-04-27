@@ -33,9 +33,9 @@
         </WrapPanel>
         <DockPanel Margin="5,2">
             <Border BorderThickness="1" DockPanel.Dock="Top">
-                <TextBlock MinWidth="100" Width="auto" x:Name="RecognizedTextBlock">Test</TextBlock>
+                <TextBlock MinWidth="150" Width="auto" x:Name="RecognizedTextBlock">Test</TextBlock>
             </Border>
-            <Button DockPanel.Dock="Bottom" x:Name="RecognizeButton">Recognize</Button>
+            <Button DockPanel.Dock="Bottom" Click="RecognizeButton_Click" x:Name="RecognizeButton">Recognize</Button>
         </DockPanel>
     </DockPanel>
 </Window>
