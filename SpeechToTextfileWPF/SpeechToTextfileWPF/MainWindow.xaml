@@ -7,21 +7,33 @@
         mc:Ignorable="d"
         Title="SpeechToTextfile" SizeToContent="WidthAndHeight">
     <DockPanel>
+        <WrapPanel DockPanel.Dock="Top" Margin="5,2">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="4,0">Subscription Key</TextBlock>
+                <TextBox MinWidth="100" Margin="4,0" x:Name="AzureSubscriptionKeyTextBox"></TextBox>
+            </StackPanel>
+        </WrapPanel>
+        <WrapPanel DockPanel.Dock="Top" Margin="5,2">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="4,0">Service Region</TextBlock>
+                <TextBox MinWidth="100" Margin="4,0" x:Name="AzureServiceRegionTextBox"></TextBox>
+            </StackPanel>
+        </WrapPanel>
         <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5,2">
             <Border BorderBrush="Black" BorderThickness="1">
                 <TextBlock VerticalAlignment="Center" Margin="4,0" MinWidth="50">File</TextBlock>
             </Border>
-            <Button VerticalAlignment="Center" Margin="4,0">Select</Button>
+            <Button VerticalAlignment="Center" Margin="4,0" x:Name="FileSelectButton">Select</Button>
         </WrapPanel>
         <WrapPanel DockPanel.Dock="Top" Margin="5,2" Orientation="Horizontal">
             <TextBlock VerticalAlignment="Center" Margin="4,0">Second</TextBlock>
-            <Slider VerticalAlignment="Center" Maximum="30" Minimum="0" AutoToolTipPlacement="TopLeft" LargeChange="10" SmallChange="1" TickPlacement="Both" MinWidth="200" Width="auto" TickFrequency="5"></Slider>
+            <Slider x:Name="RefreshSecondSlider" VerticalAlignment="Center" Maximum="30" Minimum="0" AutoToolTipPlacement="TopLeft" LargeChange="10" SmallChange="1" TickPlacement="Both" MinWidth="200" Width="auto" TickFrequency="5"></Slider>
         </WrapPanel>
         <DockPanel Margin="5,2">
             <Border BorderThickness="1" DockPanel.Dock="Top">
-                <TextBlock MinWidth="100" Width="auto">Test</TextBlock>
+                <TextBlock MinWidth="100" Width="auto" x:Name="RecognizeTextBlock">Test</TextBlock>
             </Border>
-            <Button DockPanel.Dock="Bottom">Recognize</Button>
+            <Button DockPanel.Dock="Bottom" x:Name="RecognizeButton">Recognize</Button>
         </DockPanel>
     </DockPanel>
 </Window>
