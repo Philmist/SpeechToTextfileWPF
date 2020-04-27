@@ -23,11 +23,11 @@
             <Border BorderBrush="Black" BorderThickness="1">
                 <TextBlock VerticalAlignment="Center" Margin="4,0" MinWidth="50">File</TextBlock>
             </Border>
-            <Button VerticalAlignment="Center" Margin="4,0" x:Name="FileSelectButton">Select</Button>
+            <Button VerticalAlignment="Center" Margin="4,0" x:Name="FileSelectButton" Padding="2,0">Select</Button>
         </WrapPanel>
         <WrapPanel DockPanel.Dock="Top" Margin="5,2" Orientation="Horizontal">
-            <TextBlock VerticalAlignment="Center" Margin="4,0">Second</TextBlock>
             <Slider x:Name="RefreshSecondSlider" VerticalAlignment="Center" Maximum="30" Minimum="0" AutoToolTipPlacement="TopLeft" LargeChange="10" SmallChange="1" TickPlacement="Both" MinWidth="200" Width="auto" TickFrequency="5"></Slider>
+            <TextBlock VerticalAlignment="Center" Margin="4,0" Text="{Binding ElementName=RefreshSecondSlider,Path=Value}" Padding="1,0"></TextBlock>
         </WrapPanel>
         <DockPanel Margin="5,2">
             <Border BorderThickness="1" DockPanel.Dock="Top">
