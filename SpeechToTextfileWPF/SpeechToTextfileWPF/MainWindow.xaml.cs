@@ -27,8 +27,9 @@ namespace SpeechToTextfileWPF
         private string subscriptionKey;
         private string serviceRegion;
 
-        private bool isListening = false;
+        private volatile bool isListening = false;
         private ConcurrentQueue<string> textQueue;
+        private string fileName = "";
 
         private SpeechRecognizer recognizer = null;
         private SpeechConfig speechConfig = null;
@@ -93,6 +94,7 @@ namespace SpeechToTextfileWPF
         {
             if (eventArgs.Result.Reason == ResultReason.RecognizedSpeech)
             {
+                textQueue.Enqueue(eventArgs.Result.Text);
                 await Task.Run(() => {
                     Dispatcher.Invoke(() => { RecognizedTextBlock.Text = eventArgs.Result.Text; });
                 });
@@ -101,6 +103,7 @@ namespace SpeechToTextfileWPF
 
         private async void RecognizeCanceled(object sender, SpeechRecognitionCanceledEventArgs eventArgs)
         {
+            isListening = false;
             await changeControls(true);
             await Task.Run(() =>
             {
@@ -109,7 +112,6 @@ namespace SpeechToTextfileWPF
                     RecognizedTextBlock.Text = eventArgs.Reason.ToString();
                 });
             });
-            isListening = false;
         }
 
         private async void RecognizeButton_Click(object sender, RoutedEventArgs e)
@@ -126,13 +128,26 @@ namespace SpeechToTextfileWPF
                 await changeControls(false);
                 try
                 {
-                    speechConfig = SpeechConfig.FromSubscription(AzureSubscriptionKeyTextBox.Text, AzureServiceRegionTextBox.Text);
+                    string subscriptionKey = AzureSubscriptionKeyTextBox.Text.Trim();
+                    string region = AzureServiceRegionTextBox.Text.Trim();
+                    if (subscriptionKey.Length == 0 || region.Length == 0)
+                    {
+                        await changeStateRecognizeButton(true);
+                        await changeControls(true);
+                        return;
+                    }
+                    textQueue = new ConcurrentQueue<string>();
+                    speechConfig = SpeechConfig.FromSubscription(subscriptionKey, region);
                     speechConfig.SpeechRecognitionLanguage = "ja-JP";
                     recognizer = new SpeechRecognizer(speechConfig, audioConfig);
+
+                    isListening = true;
                     recognizer.Recognized += UpdateRecognizedText;
                     recognizer.Canceled += RecognizeCanceled;
                     await recognizer.StartContinuousRecognitionAsync();
-                    isListening = true;
+
+                    double refreshSecond = RefreshSecondSlider.Value;
+                    _ = Task.Run(() => writeToTextfile(refreshSecond));
 
                 }
                 catch (Exception ex)
@@ -146,14 +161,71 @@ namespace SpeechToTextfileWPF
             }
             else
             {
-                await recognizer.StopContinuousRecognitionAsync();
                 recognizer.Recognized -= UpdateRecognizedText;
                 recognizer.Canceled -= RecognizeCanceled;
+                await recognizer.StopContinuousRecognitionAsync();
                 isListening = false;
                 await changeControls(true);
             }
 
             await changeStateRecognizeButton(true);
+        }
+
+        private void FileSelectButton_Click(object sender, RoutedEventArgs eventArgs)
+        {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            openFileDialog.DefaultExt = ".txt";
+            openFileDialog.Filter = "Text File (.txt)|*.txt";
+
+            Nullable<bool> result = openFileDialog.ShowDialog();
+            if (result == true)
+            {
+                fileName = openFileDialog.FileName;
+                FileNameLabel.Text = fileName;
+            }
+        }
+
+        private void writeToTextfile(double refreshSecond)
+        {
+            if (fileName == "")
+            {
+                return;
+            }
+
+            string text;
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            while(isListening == true)
+            {
+                if (textQueue.TryDequeue(out text))
+                {
+                    try
+                    {
+                        System.IO.File.WriteAllText(fileName, text, Encoding.UTF8);
+                        stopwatch.Restart();
+                    }
+                    catch (Exception)
+                    {
+                        break;
+                    }
+                }
+
+                if (refreshSecond > 0 && (stopwatch.ElapsedMilliseconds > (refreshSecond * 1000)))
+                {
+                    try
+                    {
+                        System.IO.File.WriteAllText(fileName, "", Encoding.UTF8);
+                        stopwatch.Restart();
+                    }
+                    catch (Exception)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            stopwatch.Stop();
         }
     }
 }

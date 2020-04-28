@@ -23,9 +23,9 @@
         </WrapPanel>
         <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5,2">
             <Border BorderBrush="Black" BorderThickness="1">
-                <TextBlock VerticalAlignment="Center" Margin="4,0" MinWidth="50">File</TextBlock>
+                <TextBlock VerticalAlignment="Center" Margin="4,0" MinWidth="200" x:Name="FileNameLabel">File</TextBlock>
             </Border>
-            <Button VerticalAlignment="Center" Margin="4,0" x:Name="FileSelectButton" Padding="2,0">Select</Button>
+            <Button Click="FileSelectButton_Click" VerticalAlignment="Center" Margin="4,0" x:Name="FileSelectButton" Padding="2,0">Select</Button>
         </WrapPanel>
         <WrapPanel DockPanel.Dock="Top" Margin="5,2" Orientation="Horizontal">
             <Slider x:Name="RefreshSecondSlider" VerticalAlignment="Center" Maximum="30" Minimum="0" AutoToolTipPlacement="TopLeft" LargeChange="10" SmallChange="1" TickPlacement="Both" MinWidth="200" Width="auto" TickFrequency="5"></Slider>
