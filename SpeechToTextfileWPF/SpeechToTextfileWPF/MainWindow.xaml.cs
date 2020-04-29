@@ -16,6 +16,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.CognitiveServices.Speech;
+using System.Net.Sockets;
+using FNF.Utility;
 
 namespace SpeechToTextfileWPF
 {
@@ -24,12 +26,10 @@ namespace SpeechToTextfileWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string subscriptionKey;
-        private string serviceRegion;
-
         private volatile bool isListening = false;
         private ConcurrentQueue<string> textQueue;
         private string fileName = "";
+        private BouyomiChanClient bouyomiChan = null;
 
         private SpeechRecognizer recognizer = null;
         private SpeechConfig speechConfig = null;
@@ -55,6 +55,7 @@ namespace SpeechToTextfileWPF
                         RefreshSecondSlider.IsEnabled = true;
                         AzureSubscriptionPanel.Visibility = Visibility.Visible;
                         FileSelectButton.IsEnabled = true;
+                        BouyomiChanCheckBox.IsEnabled = true;
                         RecognizeButton.Content = "Recognize";
                     });
                     break;
@@ -66,6 +67,7 @@ namespace SpeechToTextfileWPF
                             RefreshSecondSlider.IsEnabled = false;
                             AzureSubscriptionPanel.Visibility = Visibility.Hidden;
                             FileSelectButton.IsEnabled = false;
+                            BouyomiChanCheckBox.IsEnabled = false;
                             RecognizeButton.Content = "Stop";
                         });
                     });
@@ -141,6 +143,17 @@ namespace SpeechToTextfileWPF
                     speechConfig.SpeechRecognitionLanguage = "ja-JP";
                     recognizer = new SpeechRecognizer(speechConfig, audioConfig);
 
+                    if (bouyomiChan != null)
+                    {
+                        bouyomiChan.Dispose();
+                        bouyomiChan = null;
+                    }
+
+                    if (BouyomiChanCheckBox.IsChecked == true)
+                    {
+                        bouyomiChan = new BouyomiChanClient();
+                    }
+
                     isListening = true;
                     recognizer.Recognized += UpdateRecognizedText;
                     recognizer.Canceled += RecognizeCanceled;
@@ -153,17 +166,26 @@ namespace SpeechToTextfileWPF
                 catch (Exception ex)
                 {
                     Debug.WriteLine(ex.Message);
+                    if (bouyomiChan != null)
+                    {
+                        bouyomiChan.Dispose();
+                        bouyomiChan = null;
+                    }
                     await changeControls(true);
                     await changeStateRecognizeButton(true);
                     return;
                 }
-
             }
             else
             {
                 recognizer.Recognized -= UpdateRecognizedText;
                 recognizer.Canceled -= RecognizeCanceled;
                 await recognizer.StopContinuousRecognitionAsync();
+                if (bouyomiChan != null)
+                {
+                    bouyomiChan.Dispose();
+                    bouyomiChan = null;
+                }
                 isListening = false;
                 await changeControls(true);
             }
@@ -187,10 +209,20 @@ namespace SpeechToTextfileWPF
 
         private void writeToTextfile(double refreshSecond)
         {
-            if (fileName == "")
+            string trimedFileName = fileName.Trim();
+            Action<string> writeToFile = (string t) =>
             {
-                return;
-            }
+                if (trimedFileName != "")
+                {
+                    System.IO.File.WriteAllText(trimedFileName, t, Encoding.UTF8);
+                }
+            };
+            Action<string> talk = (string t) => {
+                if (bouyomiChan != null)
+                {
+                    bouyomiChan.AddTalkTask(t);
+                }
+            };
 
             string text;
             Stopwatch stopwatch = new Stopwatch();
@@ -202,7 +234,8 @@ namespace SpeechToTextfileWPF
                 {
                     try
                     {
-                        System.IO.File.WriteAllText(fileName, text, Encoding.UTF8);
+                        writeToFile(text);
+                        talk(text);
                         stopwatch.Restart();
                     }
                     catch (Exception)
@@ -215,7 +248,7 @@ namespace SpeechToTextfileWPF
                 {
                     try
                     {
-                        System.IO.File.WriteAllText(fileName, "", Encoding.UTF8);
+                        writeToFile("");
                         stopwatch.Restart();
                     }
                     catch (Exception)
