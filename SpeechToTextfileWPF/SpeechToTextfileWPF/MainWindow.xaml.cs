@@ -131,15 +131,15 @@ namespace SpeechToTextfileWPF
                 try
                 {
                     string subscriptionKey = AzureSubscriptionKeyTextBox.Text.Trim();
-                    string region = AzureServiceRegionTextBox.Text.Trim();
-                    if (subscriptionKey.Length == 0 || region.Length == 0)
+                    Uri endpointUri = new Uri(AzureServiceEndpointUriTextBox.Text.Trim());
+                    if (subscriptionKey.Length == 0 || endpointUri.IsWellFormedOriginalString() != true)
                     {
                         await changeStateRecognizeButton(true);
                         await changeControls(true);
                         return;
                     }
                     textQueue = new ConcurrentQueue<string>();
-                    speechConfig = SpeechConfig.FromSubscription(subscriptionKey, region);
+                    speechConfig = SpeechConfig.FromEndpoint(endpointUri, subscriptionKey);
                     speechConfig.SpeechRecognitionLanguage = "ja-JP";
                     recognizer = new SpeechRecognizer(speechConfig, audioConfig);
 

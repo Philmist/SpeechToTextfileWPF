@@ -16,8 +16,8 @@
             </WrapPanel>
             <WrapPanel DockPanel.Dock="Top" Margin="5,2">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="4,0">Service Region</TextBlock>
-                    <TextBox MinWidth="60" Margin="4,0" x:Name="AzureServiceRegionTextBox"></TextBox>
+                    <TextBlock Margin="4,0">Endpoint Uri</TextBlock>
+                    <TextBox MinWidth="300" Margin="4,0" x:Name="AzureServiceEndpointUriTextBox"></TextBox>
                 </StackPanel>
             </WrapPanel>
         </WrapPanel>
