@@ -1,3 +1,15 @@
+BouyomiChanClient.csについては
+ファイル冒頭にある注意書き通りのライセンスが適用されます。
+原著作者はみちあきさんになります。
+棒読みちゃんのページは以下になります。
+http://chi.usamimi.info/Program/Application/BouyomiChan/
+
+Microsoft.CognitiveServices.Speechについては
+https://csspeechstorage.blob.core.windows.net/drop/license201809.html
+が適用されます。
+
+それ以外のソースコードについては以下のライセンスが適用されます。
+
 MIT License
 
 Copyright (c) 2020 Philmist
