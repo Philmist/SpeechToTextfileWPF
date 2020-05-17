@@ -118,15 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="buttonApply" xml:space="preserve">
-    <value>Apply</value>
+    <value>適用</value>
   </data>
   <data name="buttonCancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>キャンセル</value>
   </data>
   <data name="buttonOK" xml:space="preserve">
     <value>OK</value>
-  </data>
-  <data name="labelAuthentication" xml:space="preserve">
-    <value>Authentication</value>
   </data>
 </root>

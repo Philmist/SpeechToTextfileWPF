@@ -34,6 +34,7 @@ namespace SpeechToTextfileWPF
         private SpeechRecognizer recognizer = null;
         private SpeechConfig speechConfig = null;
         private AudioConfig audioConfig = null;
+        private SourceLanguageConfig sourceLanguage = null;
 
         public MainWindow()
         {
@@ -140,8 +141,8 @@ namespace SpeechToTextfileWPF
                     }
                     textQueue = new ConcurrentQueue<string>();
                     speechConfig = SpeechConfig.FromEndpoint(endpointUri, subscriptionKey);
-                    speechConfig.SpeechRecognitionLanguage = "ja-JP";
-                    recognizer = new SpeechRecognizer(speechConfig, audioConfig);
+                    sourceLanguage = SourceLanguageConfig.FromLanguage("ja-JP");
+                    recognizer = new SpeechRecognizer(speechConfig, sourceLanguage, audioConfig);
 
                     if (bouyomiChan != null)
                     {
