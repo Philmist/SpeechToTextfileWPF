@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -29,16 +30,17 @@ namespace SpeechToTextfileWPF
         private volatile bool isListening = false;
         private ConcurrentQueue<string> textQueue;
         private string fileName = "";
-        private BouyomiChanClient bouyomiChan = null;
+        private BouyomiChanClient? bouyomiChan = null;
 
-        private SpeechRecognizer recognizer = null;
-        private SpeechConfig speechConfig = null;
-        private AudioConfig audioConfig = null;
-        private SourceLanguageConfig sourceLanguage = null;
+        private SpeechRecognizer? recognizer = null;
+        private SpeechConfig? speechConfig = null;
+        private AudioConfig? audioConfig = null;
+        private SourceLanguageConfig? sourceLanguage = null;
 
         public MainWindow()
         {
             InitializeComponent();
+            textQueue = new ConcurrentQueue<string>();
         }
 
         /// <summary>
@@ -158,7 +160,7 @@ namespace SpeechToTextfileWPF
                     isListening = true;
                     recognizer.Recognized += UpdateRecognizedText;
                     recognizer.Canceled += RecognizeCanceled;
-                    await recognizer.StartContinuousRecognitionAsync();
+                    await recognizer.StartContinuousRecognitionAsync().ConfigureAwait(false);
 
                     double refreshSecond = RefreshSecondSlider.Value;
                     _ = Task.Run(() => writeToTextfile(refreshSecond));
@@ -179,9 +181,11 @@ namespace SpeechToTextfileWPF
             }
             else
             {
-                recognizer.Recognized -= UpdateRecognizedText;
-                recognizer.Canceled -= RecognizeCanceled;
-                await recognizer.StopContinuousRecognitionAsync();
+                if (recognizer != null) {
+                    recognizer.Recognized -= UpdateRecognizedText;
+                    recognizer.Canceled -= RecognizeCanceled;
+                    await recognizer.StopContinuousRecognitionAsync().ConfigureAwait(false);
+                }
                 if (bouyomiChan != null)
                 {
                     bouyomiChan.Dispose();
