@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace SpeechToTextfileWPF
 {
-    [XmlRoot(ElementName = "Settings", IsNullable = false)]
+    [XmlRoot(ElementName = "Settings", IsNullable = true)]
     public class SettingStore
     {
         [XmlArrayItem(typeof(GoogleAuthentication))]
@@ -21,6 +21,10 @@ namespace SpeechToTextfileWPF
         public List<SpeechToTextSetting> SpeechToTextSettings = new List<SpeechToTextSetting>();
 
         public BouyomiChanSetting BouyomiChanSetting = new BouyomiChanSetting();
+
+        [XmlArrayItem(typeof(TextPrefixAddFilter))]
+        [XmlArrayItem(typeof(TextSaveToFileFilter))]
+        public List<TextFilterBase> TextFilters = new List<TextFilterBase>();
     }
 
     public class AuthenticationStore
@@ -36,6 +40,7 @@ namespace SpeechToTextfileWPF
 
     public class GoogleAuthentication : AuthenticationStore
     {
+        public string CredentialFilePath = "";
     }
 
     public class AzureKeyEndpointAuthentication : AuthenticationStore
@@ -62,13 +67,13 @@ namespace SpeechToTextfileWPF
     {
         public Guid Guid = new Guid();
         public Guid? AuthenticationGuid = null;
-        public string TextFileName = "";
-        public int FileRestainSeconds = 0;
+        public string MicrophoneDeviceId = "";
     }
 
     public class TextFilterBase
     {
         public Guid Guid = new Guid();
+        public Guid? SubscriptionGuid = null;
     }
 
     public class TextPrefixAddFilter : TextFilterBase
@@ -76,9 +81,15 @@ namespace SpeechToTextfileWPF
         public string PrefixString = "";
     }
 
+    public class TextSaveToFileFilter : TextFilterBase
+    {
+        public string FileName = "";
+        public int PersistenceSeconds = 0;
+    }
+
     public class BouyomiChanSetting
     {
-        public Guid? TextFilterGuid;
+        public List<Guid> SubscriptionTextFiltersGuid = new List<Guid>();
         public bool Enable = false;
         public bool UseNetwork = false;
         public IPAddress? IpAddress;
