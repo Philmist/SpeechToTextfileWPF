@@ -5,8 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SpeechToTextfileWPF"
         mc:Ignorable="d"
-        Title="SpeechToTextfile" SizeToContent="WidthAndHeight">
+        Title="SpeechToTextfile" SizeToContent="WidthAndHeight"
+        xmlns:properties="clr-namespace:SpeechToTextfileWPF.Properties"
+        Height="480"
+        Width="640"
+        >
     <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5,2">
+            <TextBlock Margin="4,0">AudioIF</TextBlock>
+            <ComboBox x:Name="AudioInterfaceComboBox" IsEditable="False" IsReadOnly="True">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding FriendlyName}" Margin="2.5" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
         <WrapPanel Orientation="Vertical" x:Name="AzureSubscriptionPanel" DockPanel.Dock="Top">
             <WrapPanel DockPanel.Dock="Top" Margin="5,2">
                 <StackPanel Orientation="Horizontal">
@@ -27,6 +41,12 @@
             </Border>
             <Button Click="FileSelectButton_Click" VerticalAlignment="Center" Margin="4,0" x:Name="FileSelectButton" Padding="2,0">Select</Button>
         </WrapPanel>
+        <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5.2">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="4,0">Text Send Url</TextBlock>
+                <TextBox MinWidth="300" Margin="4,0" x:Name="TextSendUrl"></TextBox>
+            </StackPanel>
+        </WrapPanel>
         <WrapPanel DockPanel.Dock="Top" Margin="5,2" Orientation="Horizontal">
             <Slider x:Name="RefreshSecondSlider" VerticalAlignment="Center" Maximum="30" Minimum="0" AutoToolTipPlacement="TopLeft" LargeChange="10" SmallChange="1" TickPlacement="Both" MinWidth="200" Width="auto" TickFrequency="5"></Slider>
             <TextBlock VerticalAlignment="Center" Margin="4,0" Text="{Binding ElementName=RefreshSecondSlider,Path=Value}" Padding="1,0"></TextBlock>
@@ -34,11 +54,16 @@
         <WrapPanel DockPanel.Dock="Top" Margin="5,2">
             <CheckBox x:Name="BouyomiChanCheckBox" Content="BouyomiChan Enable"></CheckBox>
         </WrapPanel>
-        <DockPanel Margin="5,2">
+        <DockPanel Margin="5,2" DockPanel.Dock="Top">
             <Border BorderThickness="1" DockPanel.Dock="Top">
                 <TextBlock MinWidth="150" MinHeight="40" TextWrapping="Wrap" Width="auto" x:Name="RecognizedTextBlock">Test</TextBlock>
             </Border>
             <Button DockPanel.Dock="Bottom" Click="RecognizeButton_Click" x:Name="RecognizeButton" MaxWidth="200">Recognize</Button>
         </DockPanel>
+        <!--
+        <DockPanel Margin="5,2" DockPanel.Dock="Top">
+            <Button x:Name="OpenSettingDialogButton" MinWidth="100" MaxWidth="200" Click="OpenSettingDialogButton_Click" Content="{x:Static properties:Resources.buttonSettings}"></Button>
+        </DockPanel>
+        -->
     </DockPanel>
 </Window>

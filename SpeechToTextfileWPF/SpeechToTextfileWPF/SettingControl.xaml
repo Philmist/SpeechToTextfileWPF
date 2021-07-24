@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SpeechToTextfileWPF"
         mc:Ignorable="d"
+        xmlns:properties="clr-namespace:SpeechToTextfileWPF.Properties"
         Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -14,7 +15,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <TabControl TabStripPlacement="Left" Grid.Row="0">
-            <TabItem Header="{Binding labelAuthentication, Source={StaticResource resources}}">
+            <TabItem Header="{x:Static properties:Resources.labelAuthentication}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                 </ScrollViewer>
             </TabItem>

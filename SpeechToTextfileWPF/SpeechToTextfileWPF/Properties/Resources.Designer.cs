@@ -88,6 +88,15 @@ namespace SpeechToTextfileWPF.Properties {
         }
         
         /// <summary>
+        ///   Settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string buttonSettings {
+            get {
+                return ResourceManager.GetString("buttonSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Authentication に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string labelAuthentication {

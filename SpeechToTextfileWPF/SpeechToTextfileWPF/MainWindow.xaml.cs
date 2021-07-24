@@ -19,6 +19,9 @@ using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.CognitiveServices.Speech;
 using System.Net.Sockets;
 using FNF.Utility;
+using System.Globalization;
+using System.Threading;
+using NAudio.CoreAudioApi;
 
 namespace SpeechToTextfileWPF
 {
@@ -37,10 +40,26 @@ namespace SpeechToTextfileWPF
         private AudioConfig? audioConfig = null;
         private SourceLanguageConfig? sourceLanguage = null;
 
+        private List<AudioIF>? audioIFs;
+
+        public class AudioIF
+        {
+            public string FriendlyName { get; set; } = "";
+            public string ID { get; set; } = "";
+        }
+
         public MainWindow()
         {
             InitializeComponent();
             textQueue = new ConcurrentQueue<string>();
+            var audioEnumerator = new MMDeviceEnumerator();
+            audioIFs = audioEnumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active).Select(i => new AudioIF { FriendlyName = i.FriendlyName, ID = i.ID }).ToList();
+            Dispatcher.Invoke(() => {
+                CultureInfo cultureInfo = Thread.CurrentThread.CurrentUICulture;
+                this.RecognizedTextBlock.Text = cultureInfo.Name;
+                this.AudioInterfaceComboBox.ItemsSource = audioIFs;
+                this.AudioInterfaceComboBox.SelectedIndex = 0;
+            });
         }
 
         /// <summary>
@@ -48,7 +67,7 @@ namespace SpeechToTextfileWPF
         /// </summary>
         /// <param name="state">有効化するならtrue</param>
         /// <returns></returns>
-        private async Task changeControls(bool state)
+        private async Task ChangeControls(bool state)
         {
             switch (state)
             {
@@ -59,6 +78,7 @@ namespace SpeechToTextfileWPF
                         AzureSubscriptionPanel.Visibility = Visibility.Visible;
                         FileSelectButton.IsEnabled = true;
                         BouyomiChanCheckBox.IsEnabled = true;
+                        TextSendUrl.IsEnabled = true;
                         RecognizeButton.Content = "Recognize";
                     });
                     break;
@@ -71,6 +91,7 @@ namespace SpeechToTextfileWPF
                             AzureSubscriptionPanel.Visibility = Visibility.Hidden;
                             FileSelectButton.IsEnabled = false;
                             BouyomiChanCheckBox.IsEnabled = false;
+                            TextSendUrl.IsEnabled = false;
                             RecognizeButton.Content = "Stop";
                         });
                     });
@@ -83,7 +104,7 @@ namespace SpeechToTextfileWPF
         /// </summary>
         /// <param name="state">有効化するならtrue、無効化するならfalse</param>
         /// <returns></returns>
-        private async Task changeStateRecognizeButton(bool state)
+        private async Task ChangeStateRecognizeButton(bool state)
         {
             await Task.Run(() =>
             {
@@ -109,7 +130,7 @@ namespace SpeechToTextfileWPF
         private async void RecognizeCanceled(object sender, SpeechRecognitionCanceledEventArgs eventArgs)
         {
             isListening = false;
-            await changeControls(true);
+            await ChangeControls(true);
             await Task.Run(() =>
             {
                 Dispatcher.Invoke(() =>
@@ -121,24 +142,31 @@ namespace SpeechToTextfileWPF
 
         private async void RecognizeButton_Click(object sender, RoutedEventArgs e)
         {
-            await changeStateRecognizeButton(false);
+            await ChangeStateRecognizeButton(false);
 
             if (isListening == false)
             {
-                if (audioConfig == null)
+                var selectedIF = audioIFs[this.AudioInterfaceComboBox.SelectedIndex];
+                if (selectedIF != null)
                 {
+                    Debug.WriteLine(selectedIF.FriendlyName);
+                    audioConfig = AudioConfig.FromMicrophoneInput(selectedIF.ID);
+                }
+                else
+                {
+                    Debug.WriteLine("Default Mic");
                     audioConfig = AudioConfig.FromDefaultMicrophoneInput();
                 }
                 
-                await changeControls(false);
+                await ChangeControls(false);
                 try
                 {
                     string subscriptionKey = AzureSubscriptionKeyTextBox.Text.Trim();
                     Uri endpointUri = new Uri(AzureServiceEndpointUriTextBox.Text.Trim());
                     if (subscriptionKey.Length == 0 || endpointUri.IsWellFormedOriginalString() != true)
                     {
-                        await changeStateRecognizeButton(true);
-                        await changeControls(true);
+                        await ChangeStateRecognizeButton(true);
+                        await ChangeControls(true);
                         return;
                     }
                     textQueue = new ConcurrentQueue<string>();
@@ -160,10 +188,10 @@ namespace SpeechToTextfileWPF
                     isListening = true;
                     recognizer.Recognized += UpdateRecognizedText;
                     recognizer.Canceled += RecognizeCanceled;
-                    await recognizer.StartContinuousRecognitionAsync().ConfigureAwait(false);
+                    await recognizer.StartContinuousRecognitionAsync();
 
                     double refreshSecond = RefreshSecondSlider.Value;
-                    _ = Task.Run(() => writeToTextfile(refreshSecond));
+                    _ = Task.Run(() => WriteToTextfile(refreshSecond));
 
                 }
                 catch (Exception ex)
@@ -174,8 +202,8 @@ namespace SpeechToTextfileWPF
                         bouyomiChan.Dispose();
                         bouyomiChan = null;
                     }
-                    await changeControls(true);
-                    await changeStateRecognizeButton(true);
+                    await ChangeControls(true);
+                    await ChangeStateRecognizeButton(true);
                     return;
                 }
             }
@@ -192,17 +220,19 @@ namespace SpeechToTextfileWPF
                     bouyomiChan = null;
                 }
                 isListening = false;
-                await changeControls(true);
+                await ChangeControls(true);
             }
 
-            await changeStateRecognizeButton(true);
+            await ChangeStateRecognizeButton(true);
         }
 
         private void FileSelectButton_Click(object sender, RoutedEventArgs eventArgs)
         {
-            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
-            openFileDialog.DefaultExt = ".txt";
-            openFileDialog.Filter = "Text File (.txt)|*.txt";
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                DefaultExt = ".txt",
+                Filter = "Text File (.txt)|*.txt"
+            };
 
             Nullable<bool> result = openFileDialog.ShowDialog();
             if (result == true)
@@ -212,35 +242,38 @@ namespace SpeechToTextfileWPF
             }
         }
 
-        private void writeToTextfile(double refreshSecond)
+        private void WriteToTextfile(double refreshSecond)
         {
             string trimedFileName = fileName.Trim();
-            Action<string> writeToFile = (string t) =>
+            void writeToFile(string t)
             {
                 if (trimedFileName != "")
                 {
                     System.IO.File.WriteAllText(trimedFileName, t, Encoding.UTF8);
                 }
-            };
-            Action<string> talk = (string t) => {
+            }
+            void talk(string t)
+            {
                 if (bouyomiChan != null)
                 {
                     bouyomiChan.AddTalkTask(t);
                 }
-            };
+            }
 
-            string text;
+            var textHttpSender = new TextHttpSender(TextSendUrl.Text.Trim());
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
             while(isListening == true)
             {
-                if (textQueue.TryDequeue(out text))
+                if (textQueue.TryDequeue(out string text))
                 {
                     try
                     {
                         writeToFile(text);
                         talk(text);
+                        var recognizedText = new TextHttpSender.RecognizedText { text = text, code = "c" };
+                        textHttpSender.Send(recognizedText);
                         stopwatch.Restart();
                     }
                     catch (Exception)
@@ -264,6 +297,12 @@ namespace SpeechToTextfileWPF
             }
 
             stopwatch.Stop();
+        }
+
+        private void OpenSettingDialogButton_Click(object sender, RoutedEventArgs eventArgs)
+        {
+            var Dialog = new SettingDialog();
+            Dialog.ShowDialog();
         }
     }
 }
