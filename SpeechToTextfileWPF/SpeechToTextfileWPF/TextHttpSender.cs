@@ -2,8 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using System.Net;
 using System.Diagnostics;
 
@@ -35,28 +34,28 @@ namespace SpeechToTextfileWPF
                 return false;
             }
 
-            var options = new JsonSerializerOptions { WriteIndented = true, };
-            var jsonUtf8String = JsonSerializer.SerializeToUtf8Bytes(text, options);
+            string json = JsonConvert.SerializeObject(text, Formatting.Indented);
+            var jsonUtf8String = Encoding.UTF8.GetBytes(json);
 
             WebRequest request = WebRequest.Create(Uri);
             request.Method = "POST";
             request.ContentLength = jsonUtf8String.Length;
             request.ContentType = "application/json";
-            request.Timeout = 10000;
-
-            var dataStream = request.GetRequestStream();
-            var jsonString = JsonSerializer.Serialize(text, options);
-            Debug.WriteLine(jsonString);
-            dataStream.Write(jsonUtf8String, 0, jsonUtf8String.Length);
-            dataStream.Close();
+            request.Timeout = 3000;
 
             try
             {
+                var dataStream = request.GetRequestStream();
+                Debug.WriteLine(json);
+                dataStream.Write(jsonUtf8String, 0, jsonUtf8String.Length);
+                dataStream.Close();
+
                 var response = request.GetResponse();
                 var statusCode = ((HttpWebResponse)response).StatusCode;
                 if (statusCode == HttpStatusCode.OK)
                 {
                     isEnable = true;
+                    response.Close();
                     return true;
                 }
             }

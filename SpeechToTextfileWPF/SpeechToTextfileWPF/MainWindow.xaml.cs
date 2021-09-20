@@ -191,7 +191,8 @@ namespace SpeechToTextfileWPF
                     await recognizer.StartContinuousRecognitionAsync();
 
                     double refreshSecond = RefreshSecondSlider.Value;
-                    _ = Task.Run(() => WriteToTextfile(refreshSecond));
+                    string textUrl = TextSendUrl.Text;
+                    _ = Task.Run(() => WriteToTextfile(refreshSecond, textUrl));
 
                 }
                 catch (Exception ex)
@@ -242,7 +243,7 @@ namespace SpeechToTextfileWPF
             }
         }
 
-        private void WriteToTextfile(double refreshSecond)
+        private void WriteToTextfile(double refreshSecond, string url = "")
         {
             string trimedFileName = fileName.Trim();
             void writeToFile(string t)
@@ -260,7 +261,7 @@ namespace SpeechToTextfileWPF
                 }
             }
 
-            var textHttpSender = new TextHttpSender(TextSendUrl.Text.Trim());
+            var textHttpSender = new TextHttpSender(url.Trim());
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
@@ -272,12 +273,17 @@ namespace SpeechToTextfileWPF
                     {
                         writeToFile(text);
                         talk(text);
-                        var recognizedText = new TextHttpSender.RecognizedText { text = text, code = "c" };
-                        textHttpSender.Send(recognizedText);
+                        var recognizedText = new TextHttpSender.RecognizedText { text = text };
+                        _ = textHttpSender.Send(recognizedText);
                         stopwatch.Restart();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        Debug.WriteLine(String.Format("Exception: {0}", ex.Message));
+                        if (typeof(System.Net.WebException) == ex.GetType())
+                        {
+                            continue;
+                        }
                         break;
                     }
                 }
@@ -289,8 +295,9 @@ namespace SpeechToTextfileWPF
                         writeToFile("");
                         stopwatch.Restart();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        Debug.WriteLine(String.Format("Exception: {0}", ex.Message));
                         break;
                     }
                 }
