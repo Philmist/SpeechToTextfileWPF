@@ -79,6 +79,8 @@ namespace SpeechToTextfileWPF
                         FileSelectButton.IsEnabled = true;
                         BouyomiChanCheckBox.IsEnabled = true;
                         TextSendUrl.IsEnabled = true;
+                        LanguageFrom.IsEnabled = true;
+                        LanguageTo.IsEnabled = true;
                         RecognizeButton.Content = "Recognize";
                     });
                     break;
@@ -92,6 +94,8 @@ namespace SpeechToTextfileWPF
                             FileSelectButton.IsEnabled = false;
                             BouyomiChanCheckBox.IsEnabled = false;
                             TextSendUrl.IsEnabled = false;
+                            LanguageFrom.IsEnabled = false;
+                            LanguageTo.IsEnabled= false;
                             RecognizeButton.Content = "Stop";
                         });
                     });
