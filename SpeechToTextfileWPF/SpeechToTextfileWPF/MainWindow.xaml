@@ -35,8 +35,8 @@
             <CheckBox x:Name="BouyomiChanCheckBox" Content="BouyomiChan Enable"></CheckBox>
         </WrapPanel>
         <DockPanel Margin="5,2">
-            <Border BorderThickness="1" DockPanel.Dock="Top">
-                <TextBlock MinWidth="150" Width="auto" x:Name="RecognizedTextBlock">Test</TextBlock>
+            <Border BorderThickness="1" DockPanel.Dock="Top" x:Name="RecognizeDockPanel">
+                <TextBlock MinWidth="150" Width="{Binding Width, ElementName=RecognizeDockPanel}" x:Name="RecognizedTextBlock">Test</TextBlock>
             </Border>
             <Button DockPanel.Dock="Bottom" Click="RecognizeButton_Click" x:Name="RecognizeButton" MaxWidth="200">Recognize</Button>
         </DockPanel>
