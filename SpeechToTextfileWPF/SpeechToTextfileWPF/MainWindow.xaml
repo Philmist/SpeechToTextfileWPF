@@ -30,8 +30,8 @@
             </WrapPanel>
             <WrapPanel DockPanel.Dock="Top" Margin="5,2">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="4,0">Endpoint Uri</TextBlock>
-                    <TextBox MinWidth="300" Margin="4,0" x:Name="AzureServiceEndpointUriTextBox"></TextBox>
+                    <TextBlock Margin="4,0">Region</TextBlock>
+                    <TextBox MinWidth="300" Margin="4,0" x:Name="AzureServiceRegionTextBox"></TextBox>
                 </StackPanel>
             </WrapPanel>
         </WrapPanel>
@@ -62,7 +62,7 @@
         <WrapPanel DockPanel.Dock="Top" Margin="5,2">
             <CheckBox x:Name="BouyomiChanCheckBox" Content="BouyomiChan Enable"></CheckBox>
         </WrapPanel>
-        <DockPanel Margin="5,2" DockPanel.Dock="Top" x:Name="RecognizeDockPanel">
+        <DockPanel Margin="5,2" DockPanel.Dock="Top" x:Name="RecognizeDockPanel" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}, Path=Width}">
             <Border BorderThickness="1" DockPanel.Dock="Top">
                 <TextBlock MinWidth="150" MinHeight="40" TextWrapping="Wrap" Width="{Binding Width, ElementName=RecognizeDockPanel}" x:Name="RecognizedTextBlock">Test</TextBlock>
             </Border>

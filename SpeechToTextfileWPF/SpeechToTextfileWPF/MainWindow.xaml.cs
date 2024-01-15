@@ -22,6 +22,7 @@ using FNF.Utility;
 using System.Globalization;
 using System.Threading;
 using NAudio.CoreAudioApi;
+using Microsoft.CognitiveServices.Speech.Translation;
 
 namespace SpeechToTextfileWPF
 {
@@ -35,10 +36,13 @@ namespace SpeechToTextfileWPF
         private string fileName = "";
         private BouyomiChanClient? bouyomiChan = null;
 
-        private SpeechRecognizer? recognizer = null;
+        // private SpeechRecognizer? recognizer = null;
+        private TranslationRecognizer? recognizer = null;
         private SpeechConfig? speechConfig = null;
         private AudioConfig? audioConfig = null;
         private SourceLanguageConfig? sourceLanguage = null;
+
+        private SpeechTranslationConfig? translationConfig = null;
 
         private List<AudioIF>? audioIFs;
 
@@ -120,18 +124,20 @@ namespace SpeechToTextfileWPF
 
         }
 
-        private async void UpdateRecognizedText(object sender, SpeechRecognitionEventArgs eventArgs)
+        private async void UpdateRecognizedText(object sender, TranslationRecognitionEventArgs eventArgs)
         {
-            if (eventArgs.Result.Reason == ResultReason.RecognizedSpeech)
+            if (eventArgs.Result.Reason == ResultReason.TranslatedSpeech)
             {
-                textQueue.Enqueue(eventArgs.Result.Text);
+                // textQueue.Enqueue(eventArgs.Result.Text);
+                Debug.WriteLine(eventArgs.Result.Translations.First().Value);
+                textQueue.Enqueue(eventArgs.Result.Translations.First().Value);
                 await Task.Run(() => {
-                    Dispatcher.Invoke(() => { RecognizedTextBlock.Text = eventArgs.Result.Text; });
+                    Dispatcher.Invoke(() => { RecognizedTextBlock.Text = eventArgs.Result.Translations.First().Value; });
                 });
             }
         }
 
-        private async void RecognizeCanceled(object sender, SpeechRecognitionCanceledEventArgs eventArgs)
+        private async void RecognizeCanceled(object sender, TranslationRecognitionCanceledEventArgs eventArgs)
         {
             isListening = false;
             await ChangeControls(true);
@@ -139,7 +145,7 @@ namespace SpeechToTextfileWPF
             {
                 Dispatcher.Invoke(() =>
                 {
-                    RecognizedTextBlock.Text = eventArgs.Reason.ToString();
+                    RecognizedTextBlock.Text = eventArgs.ErrorDetails;
                 });
             });
         }
@@ -166,17 +172,24 @@ namespace SpeechToTextfileWPF
                 try
                 {
                     string subscriptionKey = AzureSubscriptionKeyTextBox.Text.Trim();
-                    Uri endpointUri = new Uri(AzureServiceEndpointUriTextBox.Text.Trim());
-                    if (subscriptionKey.Length == 0 || endpointUri.IsWellFormedOriginalString() != true)
+                    string region = AzureServiceRegionTextBox.Text.Trim();
+                    if (subscriptionKey.Length == 0 || region.Length == 0)
                     {
                         await ChangeStateRecognizeButton(true);
                         await ChangeControls(true);
                         return;
                     }
                     textQueue = new ConcurrentQueue<string>();
+                    translationConfig = SpeechTranslationConfig.FromSubscription(subscriptionKey, region);
+                    translationConfig.SpeechRecognitionLanguage = LanguageFrom.Text.Trim();
+                    translationConfig.AddTargetLanguage(LanguageTo.Text.Trim());
+                    /*
                     speechConfig = SpeechConfig.FromEndpoint(endpointUri, subscriptionKey);
                     sourceLanguage = SourceLanguageConfig.FromLanguage("ja-JP");
                     recognizer = new SpeechRecognizer(speechConfig, sourceLanguage, audioConfig);
+                    */
+                    recognizer = new TranslationRecognizer(translationConfig, audioConfig);
+                    
 
                     if (bouyomiChan != null)
                     {
@@ -192,6 +205,9 @@ namespace SpeechToTextfileWPF
                     isListening = true;
                     recognizer.Recognized += UpdateRecognizedText;
                     recognizer.Canceled += RecognizeCanceled;
+                    recognizer.SpeechStartDetected += (object s, RecognitionEventArgs args) => { Debug.WriteLine("S"); };
+                    recognizer.SpeechEndDetected += (object s, RecognitionEventArgs args) => { Debug.WriteLine("E"); };
+
                     await recognizer.StartContinuousRecognitionAsync();
 
                     double refreshSecond = RefreshSecondSlider.Value;
